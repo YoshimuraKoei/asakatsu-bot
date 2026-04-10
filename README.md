@@ -30,6 +30,8 @@
 
 Slack 上の朝活チェックインを Google Apps Script で受け付け、スプレッドシートにポイントを記録する Bot です。`main` ブランチへの push を契機に、GitHub Actions から Apps Script へ自動デプロイする前提で構成しています。
 
+アプリケーション本体の実行環境は Google Apps Script です。`Node.js` は本番実行には使わず、`@google/clasp` を使ったローカル操作と GitHub Actions 上のデプロイ処理にだけ使います。
+
 主な動作は次のとおりです。
 
 - 毎日 8:30 に Slack へチェックイン投稿
@@ -43,17 +45,38 @@ Slack 上の朝活チェックインを Google Apps Script で受け付け、ス
 
 <p align="right">(<a href="#top">トップへ</a>)</p>
 
+## アーキテクチャ
+
+![Architecture Diagram](./architecture.drawio.png)
+
+役割の対応:
+
+- Slack: ボタン押下、メンション、通知先
+- Google Apps Script: Webhook 受付、業務ロジック、Slack API 呼び出し
+- Google Sheets: ポイント保存
+- GitHub Actions: `main` push を契機に自動デプロイ
+- clasp: Apps Script への反映と関数実行
+
+<p align="right">(<a href="#top">トップへ</a>)</p>
+
 ## 環境
 
-| 言語・フレームワーク | バージョン |
-| -------------------- | ---------- |
-| Google Apps Script   | V8         |
-| JavaScript           | ES2020 相当 |
-| Node.js              | 22.x       |
-| `@google/clasp`      | 最新       |
-| GitHub Actions       | `ubuntu-latest` |
-| Slack Web API        | v2         |
-| Google Sheets        | Apps Script 連携 |
+### 実行環境
+
+| 項目 | バージョン |
+| ---- | ---------- |
+| Google Apps Script | V8 |
+| JavaScript | ES2020 相当 |
+| Slack Web API | v2 |
+| Google Sheets | Apps Script 連携 |
+
+### デプロイ・運用ツール
+
+| 項目 | バージョン |
+| ---- | ---------- |
+| Node.js | 22.x |
+| `@google/clasp` | 最新 |
+| GitHub Actions | `ubuntu-latest` |
 
 補足:
 
@@ -104,11 +127,13 @@ Slack 上の朝活チェックインを Google Apps Script で受け付け、ス
 
 ローカルと GitHub Actions で次を使います。
 
-- Node.js
-- `@google/clasp`
 - Google アカウント
 - Slack App
 - Google Spreadsheet
+- Node.js
+- `@google/clasp`
+
+Node.js は `clasp` をインストールして実行するために使います。アプリ本体は Node.js 上では動きません。
 
 ### ローカルセットアップ
 

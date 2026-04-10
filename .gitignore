@@ -1,2 +1,8 @@
 .clasp.json
+
+assets/
+
+architecture.drawio
+.$architecture.drawio.bkp
+
 README_TEMPLATE.md
