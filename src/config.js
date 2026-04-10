@@ -19,7 +19,7 @@ function getConfig_() {
   return config;
 }
 
-function syncScriptPropertiesFromCi_(newValues) {
+function syncScriptPropertiesFromCi(newValues) {
   if (!newValues || typeof newValues !== "object" || Array.isArray(newValues)) {
     throw new Error("Expected an object with Script Properties to sync.");
   }
@@ -40,7 +40,7 @@ function syncScriptPropertiesFromCi_(newValues) {
   };
 }
 
-function setupProjectFromCi_(reinstallTriggers) {
+function setupProjectFromCi(reinstallTriggers) {
   setupSheet();
   if (reinstallTriggers) {
     installTriggers();

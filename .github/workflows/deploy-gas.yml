@@ -30,7 +30,7 @@ jobs:
 
       - name: Sync Script Properties
         run: >
-          clasp run-function syncScriptPropertiesFromCi_
+          clasp run-function syncScriptPropertiesFromCi
           --params '[
             {
               "SLACK_BOT_TOKEN": "${{ secrets.SLACK_BOT_TOKEN }}",
@@ -41,7 +41,7 @@ jobs:
 
       - name: Ensure sheet and triggers
         run: >
-          clasp run-function setupProjectFromCi_
+          clasp run-function setupProjectFromCi
           --params '[true]'
 
       - name: Create version
