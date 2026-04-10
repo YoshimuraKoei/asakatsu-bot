@@ -41,7 +41,7 @@ Slack 上の朝活チェックインを Google Apps Script で受け付け、ス
 - 9:00 に未チェックイン者から 1 人をランダムにメンション
 - `@bot` メンションで現在ポイントを返信
 
-本番配備は `src/` の分割ファイル構成を使います。`.claspignore` により `appsscript.json`, `config.js`, `main.js`, `sheet.js`, `slack.js`, `triggers.js`, `utils.js` だけが `clasp push` の対象です。`src/Code.js` は旧構成の名残であり、本番デプロイ対象ではありません。
+本番配備は `src/` の分割ファイル構成を使います。`.claspignore` により `appsscript.json`, `constants.js`, `config.js`, `main.js`, `sheet.js`, `slack.js`, `triggers.js`, `utils.js` だけが `clasp push` の対象です。旧一体型の `src/Code.js` は削除済みです。
 
 <p align="right">(<a href="#top">トップへ</a>)</p>
 
@@ -99,8 +99,8 @@ Slack 上の朝活チェックインを Google Apps Script で受け付け、ス
 ├── README.md
 ├── README_TEMPLATE.md
 └── src
-    ├── Code.js
     ├── appsscript.json
+    ├── constants.js
     ├── config.js
     ├── main.js
     ├── sheet.js
@@ -115,7 +115,8 @@ Slack 上の朝活チェックインを Google Apps Script で受け付け、ス
 - `src/slack.js`: Slack payload 解釈と Web API 呼び出し
 - `src/sheet.js`: スプレッドシートの読取・更新
 - `src/triggers.js`: 朝の投稿と未チェックイン通知、トリガー管理
-- `src/config.js`: 定数、Script Properties、CI 用初期化関数
+- `src/constants.js`: 共有定数と文言
+- `src/config.js`: Script Properties と CI 用初期化関数
 - `src/utils.js`: 日付・乱択・レスポンスの補助関数
 - `.github/workflows/deploy-gas.yml`: `main` push 時の自動デプロイ
 
@@ -186,6 +187,7 @@ Apps Script エディタで次を確認します。
 | `SPREADSHEET_ID` | ポイント保存先 Spreadsheet ID |
 
 取得箇所は [config.js](/Users/yoshikoei98/asakatsu-gas-bot/src/config.js) です。
+文言やボタン表示などの調整は [constants.js](/Users/yoshikoei98/asakatsu-gas-bot/src/constants.js) に集約しています。
 
 ### GitHub Actions の設定
 

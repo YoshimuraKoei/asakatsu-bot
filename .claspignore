@@ -1,5 +1,6 @@
 **/**
 !appsscript.json
+!constants.js
 !config.js
 !main.js
 !sheet.js

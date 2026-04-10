@@ -29,3 +29,9 @@ function jsonResponse(body) {
   return ContentService.createTextOutput(JSON.stringify(body))
     .setMimeType(ContentService.MimeType.JSON);
 }
+
+function formatMessage_(template, values) {
+  return Object.keys(values || {}).reduce(function(message, key) {
+    return message.replace(new RegExp("\\{" + key + "\\}", "g"), String(values[key]));
+  }, template);
+}

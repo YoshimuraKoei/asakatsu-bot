@@ -2,20 +2,20 @@ function postMorningCheckIn() {
   const props = getConfig_();
   postJson_("https://slack.com/api/chat.postMessage", {
     channel: props.channelId,
-    text: "<!channel> 朝活開始！8:30-9:00 の間にボタンを押してください。",
+    text: MORNING_CHECK_IN_BROADCAST_TEXT,
     blocks: [
       {
         type: "section",
         text: {
           type: "mrkdwn",
-          text: "<!channel> *朝活開始！* 8:30-9:00 の間にボタンを押してください。",
+          text: "<!channel> *" + MORNING_CHECK_IN_TEXT + "*",
         },
         accessory: {
           type: "button",
           action_id: CHECK_IN_ACTION_ID,
           text: {
             type: "plain_text",
-            text: "チェックインする",
+            text: CHECK_IN_BUTTON_TEXT,
           },
           style: "primary",
           value: "check_in",
@@ -26,7 +26,7 @@ function postMorningCheckIn() {
         elements: [
           {
             type: "mrkdwn",
-            text: "同じ日に 2 回押しても加算は 1 回です。8:30-9:00 が加点対象です。",
+            text: MORNING_CHECK_IN_CONTEXT_TEXT,
           },
         ],
       },
@@ -85,7 +85,39 @@ function installTriggers() {
 
   ScriptApp.newTrigger("remindNonCheckins")
     .timeBased()
-    .everyDays(1)
+    .onWeekDay(ScriptApp.WeekDay.MONDAY)
+    .atHour(9)
+    .nearMinute(0)
+    .inTimezone(JST)
+    .create();
+
+  ScriptApp.newTrigger("remindNonCheckins")
+    .timeBased()
+    .onWeekDay(ScriptApp.WeekDay.TUESDAY)
+    .atHour(9)
+    .nearMinute(0)
+    .inTimezone(JST)
+    .create();
+
+  ScriptApp.newTrigger("remindNonCheckins")
+    .timeBased()
+    .onWeekDay(ScriptApp.WeekDay.WEDNESDAY)
+    .atHour(9)
+    .nearMinute(0)
+    .inTimezone(JST)
+    .create();
+
+  ScriptApp.newTrigger("remindNonCheckins")
+    .timeBased()
+    .onWeekDay(ScriptApp.WeekDay.THURSDAY)
+    .atHour(9)
+    .nearMinute(0)
+    .inTimezone(JST)
+    .create();
+
+  ScriptApp.newTrigger("remindNonCheckins")
+    .timeBased()
+    .onWeekDay(ScriptApp.WeekDay.FRIDAY)
     .atHour(9)
     .nearMinute(0)
     .inTimezone(JST)

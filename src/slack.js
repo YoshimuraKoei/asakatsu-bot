@@ -41,7 +41,7 @@ function handleAppMention_(event) {
   postJson_("https://slack.com/api/chat.postMessage", {
     channel: channelId,
     thread_ts: threadTs,
-    text: "<@" + userId + "> 現在のポイントは " + points + " です。",
+    text: "<@" + userId + "> " + formatMessage_(POINTS_LOOKUP_MESSAGE, { points: points }),
   });
 }
 

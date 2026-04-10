@@ -1,21 +1,3 @@
-const JST = "Asia/Tokyo";
-const SHEET_NAME = "points";
-const HEADER = ["user_id", "display_name", "points", "last_check_in"];
-const CHECK_IN_ACTION_ID = "asakatsu_check_in";
-const CHECK_IN_REACTIONS = [
-  "やるじゃん",
-  "さすが M2 だね",
-  "朝活なんて当たり前だよなあ？",
-];
-const MISSED_CHECK_IN_MESSAGES = [
-  "なんで朝活しないの？何してたん",
-];
-const REQUIRED_SCRIPT_PROPERTIES = [
-  "SLACK_BOT_TOKEN",
-  "SLACK_CHANNEL_ID",
-  "SPREADSHEET_ID",
-];
-
 function getConfig_() {
   const props = PropertiesService.getScriptProperties();
   const config = {

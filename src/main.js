@@ -50,9 +50,10 @@ function doPost(e) {
       postEphemeral_(
         channelId,
         userId,
-        "おはよう！今日はもうチェックイン済みです。現在のポイントは " +
-          (record ? record.points : 0) +
-          " です。",
+        formatMessage_(
+          ALREADY_CHECKED_IN_MESSAGE,
+          { points: record ? record.points : 0 },
+        ),
       );
       return jsonResponse({ ok: true });
     }
@@ -61,7 +62,7 @@ function doPost(e) {
       postEphemeral_(
         channelId,
         userId,
-        "8:30-9:00 の受付時間外です。ポイントは加算されません。",
+        OUTSIDE_CHECK_IN_WINDOW_MESSAGE,
       );
       return jsonResponse({ ok: true });
     }
@@ -78,7 +79,7 @@ function doPost(e) {
     postEphemeral_(
       channelId,
       userId,
-      "おはよう！現在のポイントは " + nextPoints + " です。",
+      formatMessage_(POINTS_UPDATED_MESSAGE, { points: nextPoints }),
     );
 
     if (threadTs) {
