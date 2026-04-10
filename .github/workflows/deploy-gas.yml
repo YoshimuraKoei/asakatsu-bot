@@ -65,6 +65,7 @@ jobs:
           python3 - <<'PY'
           import json
           import os
+          import urllib.error
           import urllib.request
 
           with open('.clasp.json', 'r', encoding='utf-8') as fh:
@@ -89,8 +90,12 @@ jobs:
               },
           )
 
-          with urllib.request.urlopen(req) as resp:
-              body = json.load(resp)
+          try:
+              with urllib.request.urlopen(req) as resp:
+                  body = json.load(resp)
+          except urllib.error.HTTPError as err:
+              error_body = err.read().decode()
+              raise SystemExit(error_body)
 
           if "error" in body:
               raise SystemExit(json.dumps(body["error"], ensure_ascii=False))
@@ -107,6 +112,7 @@ jobs:
           python3 - <<'PY'
           import json
           import os
+          import urllib.error
           import urllib.request
 
           with open('.clasp.json', 'r', encoding='utf-8') as fh:
@@ -127,8 +133,12 @@ jobs:
               },
           )
 
-          with urllib.request.urlopen(req) as resp:
-              body = json.load(resp)
+          try:
+              with urllib.request.urlopen(req) as resp:
+                  body = json.load(resp)
+          except urllib.error.HTTPError as err:
+              error_body = err.read().decode()
+              raise SystemExit(error_body)
 
           if "error" in body:
               raise SystemExit(json.dumps(body["error"], ensure_ascii=False))
