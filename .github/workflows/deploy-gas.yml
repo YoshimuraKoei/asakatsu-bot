@@ -61,7 +61,7 @@ jobs:
           echo "ACCESS_TOKEN=$ACCESS_TOKEN" >> "$GITHUB_ENV"
 
       - name: Sync Script Properties
-        run: >
+        run: |
           python3 - <<'PY'
           import json
           import os
