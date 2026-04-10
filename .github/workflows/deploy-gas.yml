@@ -78,7 +78,7 @@ jobs:
                   "SLACK_CHANNEL_ID": os.environ["SLACK_CHANNEL_ID"],
                   "SPREADSHEET_ID": os.environ["SPREADSHEET_ID"],
               }],
-              "devMode": True,
+              "devMode": False,
           }
 
           req = urllib.request.Request(
@@ -121,7 +121,7 @@ jobs:
           payload = {
               "function": "setupProjectFromCi",
               "parameters": [True],
-              "devMode": True,
+              "devMode": False,
           }
 
           req = urllib.request.Request(
