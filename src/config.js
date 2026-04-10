@@ -1,6 +1,7 @@
 function getConfig_() {
   const props = PropertiesService.getScriptProperties();
   const config = {
+    adminApiToken: props.getProperty("ADMIN_API_TOKEN"),
     botToken: props.getProperty("SLACK_BOT_TOKEN"),
     channelId: props.getProperty("SLACK_CHANNEL_ID"),
     spreadsheetId: props.getProperty("SPREADSHEET_ID"),
@@ -25,7 +26,7 @@ function syncScriptPropertiesFromCi(newValues) {
   }
 
   const sanitized = {};
-  REQUIRED_SCRIPT_PROPERTIES.forEach(function(key) {
+  CI_SCRIPT_PROPERTIES.forEach(function(key) {
     const value = newValues[key];
     if (!value) {
       throw new Error("Missing required Script Property in CI payload: " + key);
@@ -46,8 +47,4 @@ function setupProjectFromCi(reinstallTriggers) {
     installTriggers();
   }
   return { ok: true };
-}
-
-function ping() {
-  return "ok";
 }

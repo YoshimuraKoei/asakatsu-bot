@@ -4,6 +4,8 @@ const SHEET_NAME = "points";
 const HEADER = ["user_id", "display_name", "points", "last_check_in"];
 
 const CHECK_IN_ACTION_ID = "asakatsu_check_in";
+const ADMIN_ACTION_SYNC_SCRIPT_PROPERTIES = "syncScriptPropertiesFromCi";
+const ADMIN_ACTION_SETUP_PROJECT = "setupProjectFromCi";
 const CHECK_IN_BUTTON_TEXT = "チェックインする";
 const MORNING_CHECK_IN_TEXT = "朝活するよ！8:30-9:00の間にボタンを押してね！";
 const MORNING_CHECK_IN_BROADCAST_TEXT = "<!channel> 朝活するよ！8:30-9:00の間にボタンを押してね！";
@@ -43,3 +45,7 @@ const REQUIRED_SCRIPT_PROPERTIES = [
   "SLACK_CHANNEL_ID",
   "SPREADSHEET_ID",
 ];
+
+const CI_SCRIPT_PROPERTIES = REQUIRED_SCRIPT_PROPERTIES.concat([
+  "ADMIN_API_TOKEN",
+]);

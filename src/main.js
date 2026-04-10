@@ -1,6 +1,10 @@
 function doPost(e) {
   const jsonPayload = parseJsonBody_(e);
   if (jsonPayload) {
+    if (jsonPayload.action) {
+      return handleAdminAction_(jsonPayload);
+    }
+
     if (jsonPayload.type === "url_verification") {
       return jsonResponse({ challenge: jsonPayload.challenge });
     }
@@ -93,5 +97,36 @@ function doPost(e) {
     return jsonResponse({ ok: true });
   } finally {
     lock.releaseLock();
+  }
+}
+
+function handleAdminAction_(payload) {
+  const config = getConfig_();
+  if (!config.adminApiToken || payload.adminToken !== config.adminApiToken) {
+    return jsonResponse({
+      ok: false,
+      error: "unauthorized",
+    });
+  }
+
+  try {
+    if (payload.action === ADMIN_ACTION_SYNC_SCRIPT_PROPERTIES) {
+      return jsonResponse(syncScriptPropertiesFromCi(payload.params));
+    }
+
+    if (payload.action === ADMIN_ACTION_SETUP_PROJECT) {
+      return jsonResponse(setupProjectFromCi(Boolean(payload.reinstallTriggers)));
+    }
+
+    return jsonResponse({
+      ok: false,
+      error: "unknown_action",
+      action: payload.action,
+    });
+  } catch (error) {
+    return jsonResponse({
+      ok: false,
+      error: error && error.message ? error.message : String(error),
+    });
   }
 }

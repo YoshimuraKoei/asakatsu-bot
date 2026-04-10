@@ -111,7 +111,7 @@ Slack 上の朝活チェックインを Google Apps Script で受け付け、ス
 
 役割の要約:
 
-- `src/main.js`: Slack の `doPost` とチェックイン処理
+- `src/main.js`: Slack の `doPost`、チェックイン処理、CI 用管理エンドポイント
 - `src/slack.js`: Slack payload 解釈と Web API 呼び出し
 - `src/sheet.js`: スプレッドシートの読取・更新
 - `src/triggers.js`: 朝の投稿と未チェックイン通知、トリガー管理
@@ -159,12 +159,12 @@ cp .clasp.json.example .clasp.json
 clasp push
 ```
 
-初回だけ Apps Script エディタまたは `clasp run-function` で次を実行します。
+初回だけ Apps Script エディタで次を実行します。
 
 - `setupSheet()`
 - `installTriggers()`
 
-CI 運用に入った後は `setupProjectFromCi(true)` が同じ役割を持ちます。
+CI 運用に入った後は GitHub Actions から同等処理を自動実行します。
 
 ### Apps Script 側の設定
 
@@ -173,13 +173,10 @@ Apps Script エディタで次を確認します。
 - Web アプリ
 - Execute as: `Me`
 - Who has access: `Anyone`
-- API executable
-  - 実行関数として `syncScriptPropertiesFromCi` と `setupProjectFromCi` を呼べる状態にする
-  - GitHub Actions では Apps Script Execution API を直接呼ぶ
 
 ### Script Properties
 
-コードは次のキーを必須として読み込みます。
+通常実行では次のキーを必須として読み込みます。
 
 | キー | 役割 |
 | ---- | ---- |
@@ -187,18 +184,26 @@ Apps Script エディタで次を確認します。
 | `SLACK_CHANNEL_ID` | 通知先チャンネル ID |
 | `SPREADSHEET_ID` | ポイント保存先 Spreadsheet ID |
 
+CI からの管理操作では追加で次を使います。
+
+| キー | 役割 |
+| ---- | ---- |
+| `ADMIN_API_TOKEN` | GitHub Actions からの管理用 POST を認証する共有トークン |
+
 取得箇所は [config.js](/Users/yoshikoei98/asakatsu-gas-bot/src/config.js) です。
 文言やボタン表示などの調整は [constants.js](/Users/yoshikoei98/asakatsu-gas-bot/src/constants.js) に集約しています。
+
+`ADMIN_API_TOKEN` は bootstrap が必要です。最初の 1 回だけ、Apps Script エディタの Script Properties に GitHub Secret と同じ値を手動で入れてください。以後は GitHub Actions が同期します。
 
 ### GitHub Actions の設定
 
 `main` に push すると GitHub Actions が次を実行します。
 
 1. `clasp push -f`
-2. Apps Script Execution API で `syncScriptPropertiesFromCi()` を呼び、Script Properties を更新
-3. Apps Script Execution API で `setupProjectFromCi(true)` を呼び、シート作成とトリガー再作成
-4. `clasp create-version`
-5. `clasp update-deployment`
+2. `clasp create-version`
+3. `clasp update-deployment`
+4. Web アプリの管理用 POST で `syncScriptPropertiesFromCi()` 相当を呼び、Script Properties を更新
+5. Web アプリの管理用 POST で `setupProjectFromCi(true)` 相当を呼び、シート作成とトリガー再作成
 
 GitHub Secrets には次を設定します。
 
@@ -206,6 +211,7 @@ GitHub Secrets には次を設定します。
 | --------- | ---- |
 | `CLASPRC_JSON` | `clasp login` 後の `~/.clasprc.json` 全文 |
 | `CLASP_JSON` | `.clasp.json` の全文 |
+| `ADMIN_API_TOKEN` | Web アプリ管理用の共有トークン |
 | `GAS_DEPLOYMENT_ID` | 更新対象の Web アプリ deployment ID |
 | `SLACK_BOT_TOKEN` | Slack Bot Token |
 | `SLACK_CHANNEL_ID` | Slack の対象チャンネル ID |

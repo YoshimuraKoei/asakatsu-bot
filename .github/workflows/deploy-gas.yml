@@ -28,37 +28,13 @@ jobs:
       - name: Push project
         run: clasp push -f
 
-      - name: Create Apps Script access token
-        run: |
-          ACCESS_TOKEN=$(python3 - <<'PY'
-          import json
-          import urllib.parse
-          import urllib.request
+      - name: Create version
+        run: clasp create-version "GitHub Actions ${GITHUB_SHA}"
 
-          with open('/home/runner/.clasprc.json', 'r', encoding='utf-8') as fh:
-              data = json.load(fh)
-
-          token = data["tokens"]["default"]
-          payload = urllib.parse.urlencode({
-              "client_id": token["client_id"],
-              "client_secret": token["client_secret"],
-              "refresh_token": token["refresh_token"],
-              "grant_type": "refresh_token",
-          }).encode()
-
-          req = urllib.request.Request(
-              "https://oauth2.googleapis.com/token",
-              data=payload,
-              headers={"Content-Type": "application/x-www-form-urlencoded"},
-          )
-
-          with urllib.request.urlopen(req) as resp:
-              body = json.load(resp)
-
-          print(body["access_token"])
-          PY
-          )
-          echo "ACCESS_TOKEN=$ACCESS_TOKEN" >> "$GITHUB_ENV"
+      - name: Update web app deployment
+        run: >
+          clasp update-deployment "${{ secrets.GAS_DEPLOYMENT_ID }}"
+          --description "GitHub Actions ${GITHUB_SHA}"
 
       - name: Sync Script Properties
         run: |
@@ -68,41 +44,40 @@ jobs:
           import urllib.error
           import urllib.request
 
-          with open('.clasp.json', 'r', encoding='utf-8') as fh:
-              script_id = json.load(fh)["scriptId"]
-
+          deployment_id = os.environ["GAS_DEPLOYMENT_ID"]
+          url = f"https://script.google.com/macros/s/{deployment_id}/exec"
           payload = {
-              "function": "syncScriptPropertiesFromCi",
-              "parameters": [{
+              "action": "syncScriptPropertiesFromCi",
+              "adminToken": os.environ["ADMIN_API_TOKEN"],
+              "params": {
+                  "ADMIN_API_TOKEN": os.environ["ADMIN_API_TOKEN"],
                   "SLACK_BOT_TOKEN": os.environ["SLACK_BOT_TOKEN"],
                   "SLACK_CHANNEL_ID": os.environ["SLACK_CHANNEL_ID"],
                   "SPREADSHEET_ID": os.environ["SPREADSHEET_ID"],
-              }],
-              "devMode": False,
+              },
           }
 
           req = urllib.request.Request(
-              f"https://script.googleapis.com/v1/scripts/{script_id}:run",
+              url,
               data=json.dumps(payload).encode(),
-              headers={
-                  "Authorization": f"Bearer {os.environ['ACCESS_TOKEN']}",
-                  "Content-Type": "application/json; charset=utf-8",
-              },
+              headers={"Content-Type": "application/json; charset=utf-8"},
           )
 
           try:
               with urllib.request.urlopen(req) as resp:
                   body = json.load(resp)
           except urllib.error.HTTPError as err:
-              error_body = err.read().decode()
-              raise SystemExit(error_body)
+              body = err.read().decode()
+              raise SystemExit(body)
 
-          if "error" in body:
-              raise SystemExit(json.dumps(body["error"], ensure_ascii=False))
+          if not body.get("ok"):
+              raise SystemExit(json.dumps(body, ensure_ascii=False))
 
-          print(json.dumps(body.get("response", {}), ensure_ascii=False))
+          print(json.dumps(body, ensure_ascii=False))
           PY
         env:
+          ADMIN_API_TOKEN: ${{ secrets.ADMIN_API_TOKEN }}
+          GAS_DEPLOYMENT_ID: ${{ secrets.GAS_DEPLOYMENT_ID }}
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
           SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
@@ -115,41 +90,32 @@ jobs:
           import urllib.error
           import urllib.request
 
-          with open('.clasp.json', 'r', encoding='utf-8') as fh:
-              script_id = json.load(fh)["scriptId"]
-
+          deployment_id = os.environ["GAS_DEPLOYMENT_ID"]
+          url = f"https://script.google.com/macros/s/{deployment_id}/exec"
           payload = {
-              "function": "setupProjectFromCi",
-              "parameters": [True],
-              "devMode": False,
+              "action": "setupProjectFromCi",
+              "adminToken": os.environ["ADMIN_API_TOKEN"],
+              "reinstallTriggers": True,
           }
 
           req = urllib.request.Request(
-              f"https://script.googleapis.com/v1/scripts/{script_id}:run",
+              url,
               data=json.dumps(payload).encode(),
-              headers={
-                  "Authorization": f"Bearer {os.environ['ACCESS_TOKEN']}",
-                  "Content-Type": "application/json; charset=utf-8",
-              },
+              headers={"Content-Type": "application/json; charset=utf-8"},
           )
 
           try:
               with urllib.request.urlopen(req) as resp:
                   body = json.load(resp)
           except urllib.error.HTTPError as err:
-              error_body = err.read().decode()
-              raise SystemExit(error_body)
+              body = err.read().decode()
+              raise SystemExit(body)
 
-          if "error" in body:
-              raise SystemExit(json.dumps(body["error"], ensure_ascii=False))
+          if not body.get("ok"):
+              raise SystemExit(json.dumps(body, ensure_ascii=False))
 
-          print(json.dumps(body.get("response", {}), ensure_ascii=False))
+          print(json.dumps(body, ensure_ascii=False))
           PY
-
-      - name: Create version
-        run: clasp create-version "GitHub Actions ${GITHUB_SHA}"
-
-      - name: Update web app deployment
-        run: >
-          clasp update-deployment "${{ secrets.GAS_DEPLOYMENT_ID }}"
-          --description "GitHub Actions ${GITHUB_SHA}"
+        env:
+          ADMIN_API_TOKEN: ${{ secrets.ADMIN_API_TOKEN }}
+          GAS_DEPLOYMENT_ID: ${{ secrets.GAS_DEPLOYMENT_ID }}
