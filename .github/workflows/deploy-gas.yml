@@ -28,21 +28,113 @@ jobs:
       - name: Push project
         run: clasp push -f
 
+      - name: Create Apps Script access token
+        run: |
+          ACCESS_TOKEN=$(python3 - <<'PY'
+          import json
+          import urllib.parse
+          import urllib.request
+
+          with open('/home/runner/.clasprc.json', 'r', encoding='utf-8') as fh:
+              data = json.load(fh)
+
+          token = data["tokens"]["default"]
+          payload = urllib.parse.urlencode({
+              "client_id": token["client_id"],
+              "client_secret": token["client_secret"],
+              "refresh_token": token["refresh_token"],
+              "grant_type": "refresh_token",
+          }).encode()
+
+          req = urllib.request.Request(
+              "https://oauth2.googleapis.com/token",
+              data=payload,
+              headers={"Content-Type": "application/x-www-form-urlencoded"},
+          )
+
+          with urllib.request.urlopen(req) as resp:
+              body = json.load(resp)
+
+          print(body["access_token"])
+          PY
+          )
+          echo "ACCESS_TOKEN=$ACCESS_TOKEN" >> "$GITHUB_ENV"
+
       - name: Sync Script Properties
         run: >
-          clasp run-function syncScriptPropertiesFromCi
-          --params '[
-            {
-              "SLACK_BOT_TOKEN": "${{ secrets.SLACK_BOT_TOKEN }}",
-              "SLACK_CHANNEL_ID": "${{ secrets.SLACK_CHANNEL_ID }}",
-              "SPREADSHEET_ID": "${{ secrets.SPREADSHEET_ID }}"
-            }
-          ]'
+          python3 - <<'PY'
+          import json
+          import os
+          import urllib.request
+
+          with open('.clasp.json', 'r', encoding='utf-8') as fh:
+              script_id = json.load(fh)["scriptId"]
+
+          payload = {
+              "function": "syncScriptPropertiesFromCi",
+              "parameters": [{
+                  "SLACK_BOT_TOKEN": os.environ["SLACK_BOT_TOKEN"],
+                  "SLACK_CHANNEL_ID": os.environ["SLACK_CHANNEL_ID"],
+                  "SPREADSHEET_ID": os.environ["SPREADSHEET_ID"],
+              }],
+              "devMode": True,
+          }
+
+          req = urllib.request.Request(
+              f"https://script.googleapis.com/v1/scripts/{script_id}:run",
+              data=json.dumps(payload).encode(),
+              headers={
+                  "Authorization": f"Bearer {os.environ['ACCESS_TOKEN']}",
+                  "Content-Type": "application/json; charset=utf-8",
+              },
+          )
+
+          with urllib.request.urlopen(req) as resp:
+              body = json.load(resp)
+
+          if "error" in body:
+              raise SystemExit(json.dumps(body["error"], ensure_ascii=False))
+
+          print(json.dumps(body.get("response", {}), ensure_ascii=False))
+          PY
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
+          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
 
       - name: Ensure sheet and triggers
-        run: >
-          clasp run-function setupProjectFromCi
-          --params '[true]'
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import urllib.request
+
+          with open('.clasp.json', 'r', encoding='utf-8') as fh:
+              script_id = json.load(fh)["scriptId"]
+
+          payload = {
+              "function": "setupProjectFromCi",
+              "parameters": [True],
+              "devMode": True,
+          }
+
+          req = urllib.request.Request(
+              f"https://script.googleapis.com/v1/scripts/{script_id}:run",
+              data=json.dumps(payload).encode(),
+              headers={
+                  "Authorization": f"Bearer {os.environ['ACCESS_TOKEN']}",
+                  "Content-Type": "application/json; charset=utf-8",
+              },
+          )
+
+          with urllib.request.urlopen(req) as resp:
+              body = json.load(resp)
+
+          if "error" in body:
+              raise SystemExit(json.dumps(body["error"], ensure_ascii=False))
+
+          print(json.dumps(body.get("response", {}), ensure_ascii=False))
+          PY
 
       - name: Create version
         run: clasp create-version "GitHub Actions ${GITHUB_SHA}"

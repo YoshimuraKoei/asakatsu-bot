@@ -47,3 +47,7 @@ function setupProjectFromCi(reinstallTriggers) {
   }
   return { ok: true };
 }
+
+function ping() {
+  return "ok";
+}

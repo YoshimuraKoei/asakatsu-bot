@@ -174,7 +174,8 @@ Apps Script エディタで次を確認します。
 - Execute as: `Me`
 - Who has access: `Anyone`
 - API executable
-- 実行関数として `syncScriptPropertiesFromCi` と `setupProjectFromCi` を呼べる状態にする
+  - 実行関数として `syncScriptPropertiesFromCi` と `setupProjectFromCi` を呼べる状態にする
+  - GitHub Actions では Apps Script Execution API を直接呼ぶ
 
 ### Script Properties
 
@@ -194,8 +195,8 @@ Apps Script エディタで次を確認します。
 `main` に push すると GitHub Actions が次を実行します。
 
 1. `clasp push -f`
-2. `syncScriptPropertiesFromCi()` で Script Properties を更新
-3. `setupProjectFromCi(true)` でシート作成とトリガー再作成
+2. Apps Script Execution API で `syncScriptPropertiesFromCi()` を呼び、Script Properties を更新
+3. Apps Script Execution API で `setupProjectFromCi(true)` を呼び、シート作成とトリガー再作成
 4. `clasp create-version`
 5. `clasp update-deployment`
 
