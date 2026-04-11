@@ -7,8 +7,8 @@ const CHECK_IN_ACTION_ID = "asakatsu_check_in";
 const ADMIN_ACTION_SYNC_SCRIPT_PROPERTIES = "syncScriptPropertiesFromCi";
 const ADMIN_ACTION_SETUP_PROJECT = "setupProjectFromCi";
 const CHECK_IN_BUTTON_TEXT = "チェックインする";
-const MORNING_CHECK_IN_TEXT = "朝活するよ！8:30-9:00の間にボタンを押してね！";
-const MORNING_CHECK_IN_BROADCAST_TEXT = "<!channel> 朝活するよ！8:30-9:00の間にボタンを押してね！";
+const MORNING_CHECK_IN_TEXT = "朝活するよ！8:30~9:00の間にボタンを押してね！";
+const MORNING_CHECK_IN_BROADCAST_TEXT = "<!channel> 朝活するよ！8:30~9:00の間にボタンを押してね！";
 const MORNING_CHECK_IN_CONTEXT_TEXT = "同じ日に 2 回押しても 1 ポイントしか増えないよ〜";
 const ALREADY_CHECKED_IN_MESSAGE = "おはよ！今日はもうチェックイン済み！現在のポイントは {points} だよ〜";
 const OUTSIDE_CHECK_IN_WINDOW_MESSAGE = "キミは寝坊だよ。反省してもらって良いかな？";
@@ -29,15 +29,17 @@ const CHECK_IN_REACTIONS = [
 ];
 
 const MISSED_CHECK_IN_MESSAGES = [
-  "なんで朝活しないの？何してたん",
-  "理由を説明していただこうか。",
-  "キミ、寝坊。反省文書きたいってことだよね？",
-  "一応聞こうか。なんか理由はあるのかい？",
+  // "なんで朝活しないの？何してたん",
+  // "理由を説明していただこうか。",
+  // "キミ、寝坊。反省文書きたいってことだよね？",
+  // "一応聞こうか。なんか理由はあるのかい？",
   "？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？",
   "明日は頑張ってね！応援してるよ！",
   "明日こそは待ってるね！",
   "まあたまにはそんな日もあるよね！",
   "ドンマイドンマイ！また明日から頑張ろう！",
+  "朝活しよーよー",
+  "朝活やめちゃうの...？",
 ];
 
 const REQUIRED_SCRIPT_PROPERTIES = [

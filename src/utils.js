@@ -35,3 +35,21 @@ function formatMessage_(template, values) {
     return message.replace(new RegExp("\\{" + key + "\\}", "g"), String(values[key]));
   }, template);
 }
+
+function isDuplicateSlackEvent_(eventId) {
+  const cacheKey = "slack_event:" + eventId;
+  const lock = LockService.getScriptLock();
+  lock.waitLock(5000);
+
+  try {
+    const cache = CacheService.getScriptCache();
+    if (cache.get(cacheKey)) {
+      return true;
+    }
+
+    cache.put(cacheKey, "1", 600);
+    return false;
+  } finally {
+    lock.releaseLock();
+  }
+}

@@ -14,6 +14,11 @@ function doPost(e) {
       jsonPayload.event &&
       jsonPayload.event.type === "app_mention"
     ) {
+      const eventId = jsonPayload.event_id;
+      if (eventId && isDuplicateSlackEvent_(eventId)) {
+        return jsonResponse({ ok: true });
+      }
+
       handleAppMention_(jsonPayload.event);
       return jsonResponse({ ok: true });
     }
