@@ -80,10 +80,7 @@ function buildPointsListMessage_(records, currentUserId) {
 }
 
 function getPointListLabel_(record) {
-  if (record.userId) {
-    return "<@" + record.userId + ">";
-  }
-  return record.displayName || "unknown";
+  return record.displayName || record.userId || "unknown";
 }
 
 function postEphemeral_(channel, user, text) {
