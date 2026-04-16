@@ -34,15 +34,56 @@ function handleAppMention_(event) {
   const channelId = event.channel;
   const threadTs = event.ts;
   const sheet = getSheet_();
-  const records = findRecordsByUserId_(sheet, userId);
-  const record = records.length ? records[records.length - 1] : null;
-  const points = record ? record.points : 0;
+  const records = readAllRecords_(sheet);
+  const message = buildPointsListMessage_(records, userId);
 
   postJson_("https://slack.com/api/chat.postMessage", {
     channel: channelId,
     thread_ts: threadTs,
-    text: "<@" + userId + "> " + formatMessage_(POINTS_LOOKUP_MESSAGE, { points: points }),
+    text: message,
   });
+}
+
+function buildPointsListMessage_(records, currentUserId) {
+  if (!records || records.length === 0) {
+    return POINTS_LIST_EMPTY_MESSAGE;
+  }
+
+  const latestByUserId = {};
+  records.forEach(function(record) {
+    latestByUserId[record.userId] = record;
+  });
+
+  const latestRecords = Object.keys(latestByUserId).map(function(userId) {
+    return latestByUserId[userId];
+  });
+
+  latestRecords.sort(function(a, b) {
+    if (b.points !== a.points) {
+      return b.points - a.points;
+    }
+    return getPointListLabel_(a).localeCompare(getPointListLabel_(b));
+  });
+
+  const lines = latestRecords.map(function(record, index) {
+    return (index + 1) + ". " + getPointListLabel_(record) + " " + record.points + "ポイント";
+  });
+
+  const currentUserIndex = latestRecords.findIndex(function(record) {
+    return record.userId === currentUserId;
+  });
+  const rankMessage = currentUserIndex >= 0
+    ? formatMessage_(POINTS_LIST_USER_RANK_MESSAGE, { rank: currentUserIndex + 1 })
+    : POINTS_LIST_USER_NOT_FOUND_MESSAGE;
+
+  return POINTS_LIST_HEADER + "\n" + lines.join("\n") + "\n\n" + rankMessage;
+}
+
+function getPointListLabel_(record) {
+  if (record.userId) {
+    return "<@" + record.userId + ">";
+  }
+  return record.displayName || "unknown";
 }
 
 function postEphemeral_(channel, user, text) {

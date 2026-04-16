@@ -38,8 +38,7 @@ Slack 上の朝活チェックインを Google Apps Script で受け付け、ス
 - 8:30 以上 9:00 未満のボタン押下で 1 ポイント加算
 - 同日 2 回目以降の押下は加算なし
 - 8:30 より前、または 9:00 以降は加算なし
-- 9:00 に未チェックイン者から 1 人をランダムにメンション
-- `@bot` メンションで現在ポイントを返信
+- `@bot` メンションでポイント一覧を返信
 
 本番配備は `src/` の分割ファイル構成を使います。`.claspignore` により `appsscript.json`, `constants.js`, `config.js`, `main.js`, `sheet.js`, `slack.js`, `triggers.js`, `utils.js` だけが `clasp push` の対象です。旧一体型の `src/Code.js` は削除済みです。
 
@@ -114,7 +113,7 @@ Slack 上の朝活チェックインを Google Apps Script で受け付け、ス
 - `src/main.js`: Slack の `doPost`、チェックイン処理、CI 用管理エンドポイント
 - `src/slack.js`: Slack payload 解釈と Web API 呼び出し
 - `src/sheet.js`: スプレッドシートの読取・更新
-- `src/triggers.js`: 朝の投稿と未チェックイン通知、トリガー管理
+- `src/triggers.js`: 朝の投稿とトリガー管理
 - `src/constants.js`: 共有定数と文言
 - `src/config.js`: Script Properties と CI 用初期化関数
 - `src/utils.js`: 日付・乱択・レスポンスの補助関数
